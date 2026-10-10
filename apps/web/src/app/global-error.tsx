@@ -1,7 +1,6 @@
 'use client';
 
 import NextError from 'next/error';
-import posthog from 'posthog-js';
 import { useEffect } from 'react';
 
 export default function GlobalError({
@@ -11,7 +10,9 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    posthog.captureException(error);
+    // Loaded on demand so posthog-js stays out of the website's first-load JavaScript. It is a no-op when
+    // PostHog was not initialised (no consent on the website, no token).
+    void import('posthog-js').then(({ default: posthog }) => posthog.captureException(error));
   }, [error]);
 
   return (

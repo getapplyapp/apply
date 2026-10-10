@@ -69,8 +69,9 @@ export function PlanCards({ locale, plans, variant }: { locale: Locale; plans: P
 }
 
 /**
- * Homepage pricing teaser: three cards in the same order on every screen (Free, Plus, Max). Plus carries
- * the lilac tint; no "most chosen" label (no data to back it).
+ * Homepage pricing teaser: three cards in the same order on every screen (Free, Plus, Max), described in words.
+ * No prices or limits here (they depend on the plan and live on /pricing). Plus carries the lilac tint; no
+ * "most chosen" label (no data to back it).
  */
 function PlanTeaser({ locale, plans }: { locale: Locale; plans: PricingPlan[] }) {
   const t = ui[locale];
@@ -83,13 +84,7 @@ function PlanTeaser({ locale, plans }: { locale: Locale; plans: PricingPlan[] })
           className={cn('flex flex-col rounded-2xl border p-6 sm:p-7', p.key === 'plus' ? 'border-brand-200 bg-brand-50' : 'border-stone-200 bg-white')}
         >
           <PlanTag plan={p.key} label={t.planTag[p.key]} size="md" className="self-start" />
-          {p.priceVisible && (
-            <p className="mt-6 text-4xl font-medium tabular-nums tracking-tight text-stone-950">
-              {money(p.priceMonthly)}
-              {p.priceMonthly > 0 && <span className="text-base font-normal text-stone-600">{t.perMonthLong}</span>}
-            </p>
-          )}
-          <p className="mt-2 text-[15px] text-stone-700">{t.upToApplications(p.caps.applications)}</p>
+          <p className="mt-5 flex-1 text-pretty text-[17px] leading-[1.5] text-stone-800">{p.tagline}</p>
           <a
             href={appHref('/login', `home-plan-${p.key}`)}
             className={buttonStyles(p.key === 'free' ? 'primary' : 'secondary', 'lg', 'mt-8 w-full')}

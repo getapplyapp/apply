@@ -2,7 +2,7 @@ import { eyebrow, h2, sectionTop, wrap } from './styles';
 import type { Section } from '@/site/content/types';
 import { cn } from '@/site/lib/cn';
 
-/** Product facts band: verifiable numbers about the product, never user counts, quotes or logos. */
+/** Product facts band: short, verifiable facts in words; no figures that depend on a plan, no user counts, quotes or logos. */
 export function Facts({ section }: { section: Extract<Section, { type: 'facts' }> }) {
   return (
     <section className={cn(wrap, sectionTop)}>
@@ -27,7 +27,7 @@ export function Facts({ section }: { section: Extract<Section, { type: 'facts' }
             )}
           >
             <dt className="order-2 mt-3 font-medium text-stone-950">{it.label}</dt>
-            <dd className="font-display order-1 text-[44px] leading-none text-stone-950 sm:text-[56px]">{it.value}</dd>
+            <dd className="font-display order-1 text-[32px] leading-[1.1] text-stone-950 sm:text-[36px]">{it.value}</dd>
             {it.text && <dd className="order-3 mt-1.5 text-pretty text-sm leading-[1.6] text-stone-600">{it.text}</dd>}
           </div>
         ))}

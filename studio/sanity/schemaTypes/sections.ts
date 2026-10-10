@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity';
+import { DEMO_KEYS } from './shared';
 
 const title = defineField({ name: 'title', type: 'string', validation: (r) => r.required() });
 const intro = defineField({ name: 'intro', type: 'text', rows: 2 });
@@ -6,7 +7,8 @@ const eyebrow = defineField({ name: 'eyebrow', type: 'string', description: 'Sma
 const anchor = defineField({ name: 'anchor', type: 'string', description: 'Optional #anchor id, kebab-case.' });
 const body = defineField({ name: 'body', type: 'text', rows: 4 });
 const link = defineField({ name: 'link', type: 'textLink' });
-const shot = (name: string, title?: string) => defineField({ name, title, type: 'productShot' });
+const demo = (title?: string) => defineField({ name: 'demo', title, type: 'productDemo' });
+const bullets = defineField({ name: 'bullets', type: 'array', of: [{ type: 'string' }], validation: (r) => r.max(4) });
 
 export const cardsSection = defineType({
   name: 'cardsSection',
@@ -126,7 +128,7 @@ export const ctaSection = defineType({
     defineField({ name: 'text', type: 'text', rows: 2 }),
     defineField({ name: 'cta', type: 'cta', validation: (r) => r.required() }),
     defineField({ name: 'secondary', title: 'Secondary button', type: 'cta' }),
-    shot('shot', 'Faded product crop (optional)'),
+    defineField({ name: 'preview', title: 'Faded demo crop (optional)', type: 'string', options: { list: DEMO_KEYS.filter((d) => d.value === 'board') } }),
   ],
   preview: { select: { title: 'title' }, prepare: ({ title }) => ({ title, subtitle: 'Call to action' }) },
 });
@@ -166,30 +168,25 @@ export const spotlightSection = defineType({
     eyebrow,
     title,
     body,
-    defineField({ name: 'bullets', type: 'array', of: [{ type: 'string' }], validation: (r) => r.max(4) }),
+    bullets,
     link,
-    shot('shot', 'Product shot'),
-    shot('inset', 'Zoomed inset (optional)'),
-    defineField({ name: 'shotSide', type: 'string', options: { list: ['left', 'right'] }, initialValue: 'right' }),
-    defineField({
-      name: 'boards',
-      title: 'Job boards row (optional)',
-      type: 'array',
-      of: [{ type: 'object', fields: [defineField({ name: 'key', type: 'string', description: 'Logo file public/site/boards/<key>.svg' }), defineField({ name: 'name', type: 'string' })], preview: { select: { title: 'name' } } }],
-    }),
+    demo('Live demo'),
+    defineField({ name: 'demoSide', type: 'string', options: { list: ['left', 'right'] }, initialValue: 'right' }),
   ],
   preview: { select: { title: 'title', subtitle: 'eyebrow' } },
 });
 
 export const viewsSection = defineType({
   name: 'viewsSection',
-  title: 'Views (tabs)',
+  title: 'Applications layouts (live tabs)',
   type: 'object',
+  description: 'Renders the live Applications demo; each tab is one layout of the same demo data.',
   fields: [
     anchor,
     eyebrow,
     title,
     intro,
+    defineField({ name: 'label', title: 'Accessible label', type: 'string' }),
     defineField({
       name: 'views',
       type: 'array',
@@ -197,36 +194,44 @@ export const viewsSection = defineType({
         {
           type: 'object',
           fields: [
-            defineField({ name: 'key', type: 'string' }),
+            defineField({ name: 'key', type: 'string', options: { list: ['board', 'table', 'timeline', 'map'] }, validation: (r) => r.required() }),
             defineField({ name: 'label', type: 'string' }),
-            defineField({ name: 'icon', type: 'string', description: 'Icon key: board, table, timeline, map, ...' }),
-            shot('shot'),
+            defineField({ name: 'caption', type: 'string' }),
           ],
           preview: { select: { title: 'label' } },
         },
       ],
     }),
   ],
-  preview: { select: { title: 'title' }, prepare: ({ title }) => ({ title, subtitle: 'Views (tabs)' }) },
+  preview: { select: { title: 'title' }, prepare: ({ title }) => ({ title, subtitle: 'Applications layouts' }) },
 });
 
 export const flowSection = defineType({
   name: 'flowSection',
-  title: 'Flow (states in one figure)',
+  title: 'Flow (steps and a live demo)',
   type: 'object',
   fields: [
     anchor,
     eyebrow,
     title,
     body,
-    defineField({ name: 'caption', type: 'string' }),
     defineField({
       name: 'steps',
       type: 'array',
-      of: [{ type: 'object', fields: [defineField({ name: 'label', type: 'string' }), shot('shot')], preview: { select: { title: 'label' } } }],
+      of: [{ type: 'object', fields: [defineField({ name: 'label', type: 'string' })], preview: { select: { title: 'label' } } }],
     }),
+    demo('Live demo'),
   ],
   preview: { select: { title: 'title' }, prepare: ({ title }) => ({ title, subtitle: 'Flow' }) },
+});
+
+export const downloadSection = defineType({
+  name: 'downloadSection',
+  title: 'Desktop app (#download)',
+  type: 'object',
+  description: 'Carries the #download anchor that "Download for macOS" buttons open until the download URL is set.',
+  fields: [eyebrow, title, body, bullets],
+  preview: { select: { title: 'title' }, prepare: ({ title }) => ({ title, subtitle: 'Desktop app' }) },
 });
 
 export const trustSection = defineType({
@@ -261,7 +266,7 @@ export const factsSection = defineType({
   name: 'factsSection',
   title: 'Product facts',
   type: 'object',
-  description: 'Verifiable product facts only: no user counts, quotes or logos.',
+  description: 'Verifiable product facts in words: no figures that depend on a plan, no user counts, quotes or logos.',
   fields: [
     eyebrow,
     title,

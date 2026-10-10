@@ -1,6 +1,6 @@
 import type { PortableTextBlock } from '@portabletext/react';
 
-/** `download` opens the desktop download (NEXT_PUBLIC_DESKTOP_DOWNLOAD_URL), falling back to the sign-in page. */
+/** `download` opens the desktop download (NEXT_PUBLIC_DESKTOP_DOWNLOAD_URL), falling back to the `/#download` section. */
 export type Cta = { label: string; href: string; kind?: 'app' | 'internal' | 'download' };
 
 export type Seo = {
@@ -57,23 +57,24 @@ export type PricingPlan = {
   order: number;
 };
 
-/** Aspect ratio of a product shot slot. */
-export type ShotRatio = '16/10' | '4/3' | '4/5' | '3/2' | '1/1';
-
 /**
- * A product visual slot. The file lives in `apps/web/public/site/shots/<name>.avif` (see docs/website-shots.md);
- * until it exists, a placeholder with the same ratio and alt text is rendered.
+ * Live product demos of the homepage (React islands fed with demo data, see components/demos). Content picks a
+ * demo by key; the demo itself is code, so it always matches the product.
  */
-export type Shot = {
-  /** Slot name, kebab-case: `a1-board`. */
-  name: string;
-  alt: string;
-  ratio: ShotRatio;
+export const DEMO_KEYS = ['board', 'applications', 'search', 'interviews', 'profile'] as const;
+export type DemoKey = (typeof DEMO_KEYS)[number];
+
+export type Demo = {
+  key: DemoKey;
+  /** Accessible name of the demo (what it shows and what you can do). */
+  label: string;
   /** Figure caption without the "Fig. N" prefix, which is numbered in page order. */
   caption?: string;
-  /** Separate crop for small screens (below 640px). */
-  mobile?: { name: string; ratio: ShotRatio };
 };
+
+/** Layouts of the Applications demo. */
+export const VIEW_KEYS = ['board', 'table', 'timeline', 'map'] as const;
+export type ViewKey = (typeof VIEW_KEYS)[number];
 
 export type TextLink = { label: string; href: string };
 
@@ -81,15 +82,16 @@ export type FragmentKind = 'tab' | 'sheet' | 'note' | 'email' | 'calendar';
 
 export type Section =
   | { type: 'cards'; title: string; intro?: string; items: { title: string; text: string; href?: string; icon?: string }[] }
-  | { type: 'steps'; eyebrow?: string; title: string; intro?: string; items: { title: string; text: string; shot?: Shot }[] }
+  | { type: 'steps'; eyebrow?: string; title: string; intro?: string; items: { title: string; text: string }[] }
   | { type: 'text'; title: string; body: string; tone?: 'plain' | 'tinted' }
   | { type: 'faq'; title: string; items: { question: string; answer: string }[]; link?: TextLink }
   | { type: 'plans'; title?: string; intro?: string; variant: 'compact' | 'full'; note?: string; footnote?: string }
   | { type: 'features' }
-  | { type: 'cta'; title: string; text?: string; cta: Cta; secondary?: Cta; shot?: Shot }
+  /** `preview`: a faded, non-interactive crop of a demo under the buttons. */
+  | { type: 'cta'; title: string; text?: string; cta: Cta; secondary?: Cta; preview?: DemoKey }
   /** The problem told as a scenario: the scattered tools of one application. */
   | { type: 'scatter'; title: string; body: string; fragments: { kind: FragmentKind; label: string; text: string }[] }
-  /** One product space: text on one side, a product shot (and an optional zoomed inset) on the other. */
+  /** One product space: text on one side, a live demo on the other. */
   | {
       type: 'spotlight';
       anchor?: string;
@@ -98,20 +100,19 @@ export type Section =
       body: string;
       bullets: string[];
       link?: TextLink;
-      shot: Shot;
-      inset?: Shot;
-      /** Side of the shot on large screens. */
-      shotSide: 'left' | 'right';
-      /** Job boards shown under the shot (logo file if present, name otherwise). */
-      boards?: { key: string; name: string }[];
+      demo: Demo;
+      /** Side of the demo on large screens. */
+      demoSide: 'left' | 'right';
     }
-  /** Same data, several views: accessible tabs over one product frame. */
-  | { type: 'views'; anchor?: string; eyebrow: string; title: string; intro: string; views: { key: string; label: string; icon?: string; shot: Shot }[] }
-  /** Several states of one flow inside a single figure (resume to profile). */
-  | { type: 'flow'; anchor?: string; eyebrow: string; title: string; body: string; caption: string; steps: { label: string; shot: Shot }[] }
+  /** Same data, several layouts: the live Applications demo with its tabs. */
+  | { type: 'views'; anchor?: string; eyebrow: string; title: string; intro: string; label: string; views: { key: ViewKey; label: string; caption?: string }[] }
+  /** A flow shown live in one figure (resume to profile). */
+  | { type: 'flow'; anchor?: string; eyebrow: string; title: string; body: string; demo: Demo; steps: { label: string }[] }
+  /** The desktop app, with the `#download` anchor that download buttons fall back to. */
+  | { type: 'download'; eyebrow: string; title: string; body: string; bullets: string[] }
   /** Trust cards on a tinted band. */
   | { type: 'trust'; title: string; intro?: string; items: { title: string; text: string; icon?: string }[]; link?: TextLink }
-  /** Verifiable product facts (no user counts, no quotes). */
+  /** Product facts in words (no figures that depend on a plan, no user counts, no quotes). */
   | { type: 'facts'; eyebrow?: string; title: string; items: { value: string; label: string; text?: string }[] };
 
 export type PageSlug = 'home' | 'product' | 'pricing' | 'resources';
@@ -126,8 +127,8 @@ export type PageContent = {
   /** Microcopy under the hero buttons. */
   note?: string;
   ctas?: Cta[];
-  /** Product visual right under the hero. */
-  heroShot?: Shot;
+  /** Live demo right under the hero. */
+  heroDemo?: Demo;
   sections: Section[];
 };
 

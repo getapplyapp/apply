@@ -115,5 +115,5 @@ Unique title and description, one H1, logical H2/H3, canonical, Open Graph and T
 
 - Decided: the app lives on `applyspace.app` itself; the site is what signed-out visitors see. The routing between the two (signed-in vs signed-out on the same origin) is a separate piece of work.
 - Privacy policy and terms pages (legal text is not drafted here).
-- Real screenshots to replace placeholders.
+- Homepage visuals are live demos (WEB-13), no screenshots. The /product page still has screenshot placeholders.
 - French copy.

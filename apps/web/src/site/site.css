@@ -109,12 +109,61 @@
   }
 }
 
-/* Hero product frame on small screens: clipped on the right with a fade, never scrollable. */
-.site-fade-right {
-  mask-image: linear-gradient(to right, #000 78%, transparent);
+/* Live demos (components/demos). Quiet scrollbars inside the product windows. */
+.site-scroll-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-stone-300) transparent;
 }
-@media (min-width: 640px) {
-  .site-fade-right {
-    mask-image: none;
+
+.site-scroll-none {
+  scrollbar-width: none;
+}
+.site-scroll-none::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes site-card-landed {
+  from {
+    opacity: 0.4;
+    transform: translateY(-6px);
+    box-shadow: 0 0 0 2px var(--color-brand-300);
+  }
+  to {
+    box-shadow: 0 0 0 2px transparent;
+  }
+}
+@keyframes site-card-hint {
+  50% {
+    box-shadow: 0 0 0 3px var(--color-brand-300);
+  }
+}
+@keyframes site-field-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.site-card-landed,
+.site-card-hint {
+  border-radius: var(--radius-2xl);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* A card that just moved (drag, menu or the hero hint). */
+  .site-card-landed {
+    animation: site-card-landed 600ms var(--ease-site);
+  }
+  /* The hero hint: one card glows before it moves. */
+  .site-card-hint {
+    animation: site-card-hint 900ms var(--ease-site);
+  }
+  /* Profile fields appearing once the resume is read, 60ms apart. */
+  .site-field-in {
+    animation: site-field-in 250ms var(--ease-site) both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+  .site-progress {
+    transition: width 450ms linear;
   }
 }

@@ -1,13 +1,11 @@
 import { body, eyebrow, h2, h3, sectionTop, wrap } from './styles';
-import { ProductShot } from '@/site/components/ui/ProductShot';
 import type { Section } from '@/site/content/types';
 import { cn } from '@/site/lib/cn';
-import type { Locale } from '@/site/lib/i18n';
 
 const COLS: Record<number, string> = { 2: 'md:grid-cols-2', 3: 'md:grid-cols-3', 4: 'md:grid-cols-2 lg:grid-cols-4' };
 
 /** The lifecycle in steps: Fraunces numbers joined by a thin rule; a vertical list with a left rule on phones. */
-export function Steps({ locale, section }: { locale: Locale; section: Extract<Section, { type: 'steps' }> }) {
+export function Steps({ section }: { section: Extract<Section, { type: 'steps' }> }) {
   return (
     <section className={cn(wrap, sectionTop)}>
       <div data-reveal className="max-w-[720px]">
@@ -24,7 +22,6 @@ export function Steps({ locale, section }: { locale: Locale; section: Extract<Se
             </div>
             <h3 className={cn(h3, 'mt-4')}>{it.title}</h3>
             <p className="mt-2 text-pretty text-[15px] leading-[1.6] text-stone-600">{it.text}</p>
-            {it.shot && <ProductShot locale={locale} shot={it.shot} sizes="(min-width: 1024px) 280px, (min-width: 768px) 45vw, 100vw" className="mt-5" frameClassName="rounded-xl" />}
           </li>
         ))}
       </ol>

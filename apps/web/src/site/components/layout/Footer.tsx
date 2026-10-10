@@ -17,7 +17,7 @@ export function Footer({ locale, settings }: { locale: Locale; settings: SiteSet
           <ApplyLogo className="h-6 w-auto text-stone-950" />
           <p className="mt-4 max-w-sm text-sm text-stone-600">{settings.tagline}</p>
         </div>
-        <nav aria-label={t.footerNav} className="grid grid-cols-2 gap-8 text-sm md:col-span-6 md:col-start-7">
+        <nav aria-label={t.footerNav} className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-3 md:col-span-7 md:col-start-6">
           <div>
             <h2 className="text-[13px] font-medium uppercase tracking-[0.06em] text-stone-500">{t.footerProduct}</h2>
             <ul className="mt-3 space-y-1">
@@ -51,7 +51,7 @@ export function Footer({ locale, settings }: { locale: Locale; settings: SiteSet
                 </a>
               </li>
               <li>
-                <a href={downloadHref('footer-download')} className={linkCls}>
+                <a href={downloadHref(locale)} data-cta="footer-download" className={linkCls}>
                   {t.download}
                 </a>
               </li>
@@ -62,6 +62,21 @@ export function Footer({ locale, settings }: { locale: Locale; settings: SiteSet
                   </a>
                 </li>
               )}
+            </ul>
+          </div>
+          <div>
+            <h2 className="text-[13px] font-medium uppercase tracking-[0.06em] text-stone-500">{t.footerLegal}</h2>
+            <ul className="mt-3 space-y-1">
+              <li>
+                <Link href={internalHref(locale, '/privacy')} className={linkCls}>
+                  {t.privacy}
+                </Link>
+              </li>
+              <li>
+                <Link href={internalHref(locale, '/terms')} className={linkCls}>
+                  {t.terms}
+                </Link>
+              </li>
             </ul>
           </div>
         </nav>

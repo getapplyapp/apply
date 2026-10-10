@@ -31,13 +31,13 @@ export const page = defineType({
     defineField({ name: 'intro', type: 'text', rows: 3 }),
     defineField({ name: 'ctas', title: 'Hero buttons', type: 'array', of: [{ type: 'cta' }], validation: (r) => r.max(2) }),
     defineField({ name: 'note', title: 'Hero microcopy', type: 'string', description: 'Small line under the hero buttons.' }),
-    defineField({ name: 'heroShot', title: 'Hero product shot', type: 'productShot' }),
+    defineField({ name: 'heroDemo', title: 'Hero live demo', type: 'productDemo' }),
     defineField({
       name: 'sections',
       type: 'array',
       of: [
         'cardsSection', 'stepsSection', 'textSection', 'faqSection', 'plansSection', 'featuresSection', 'ctaSection',
-        'scatterSection', 'spotlightSection', 'viewsSection', 'flowSection', 'trustSection', 'factsSection',
+        'scatterSection', 'spotlightSection', 'viewsSection', 'flowSection', 'downloadSection', 'trustSection', 'factsSection',
       ].map((type) => defineArrayMember({ type })),
     }),
     ...seoFields,

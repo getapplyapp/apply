@@ -1,7 +1,7 @@
 import type { Locale } from './i18n';
 import { sanityFetch, sanityImageUrl } from './sanity';
 import * as fallback from '@/site/content/fallback';
-import type { Cta, Feature, ImageRef, PageContent, PageSlug, PricingPlan, Resource, Section, Shot, ShotRatio, SiteSettings, TextLink } from '@/site/content/types';
+import { DEMO_KEYS, VIEW_KEYS, type Cta, type Demo, type DemoKey, type Feature, type ImageRef, type PageContent, type PageSlug, type PricingPlan, type Resource, type Section, type SiteSettings, type TextLink, type ViewKey } from '@/site/content/types';
 import type { PortableTextBlock } from '@portabletext/react';
 
 /**
@@ -38,7 +38,7 @@ export async function getSiteSettings(locale: Locale): Promise<SiteSettings> {
 const PAGE_QUERY = `*[_type == "page" && slug == $slug && language == $locale][0]{
   "slug": slug,
   "seo": {"title": seoTitle, "description": seoDescription, "noindex": noindex, "ogImage": ogImage},
-  heading, intro, eyebrow, note, heroShot, ctas[]{label, href, kind},
+  heading, intro, eyebrow, note, heroDemo, ctas[]{label, href, kind},
   sections[]{
     ...,
     _type == "cardsSection" => {items[]{title, text, href, icon}},
@@ -60,35 +60,30 @@ type SanitySection = {
   note?: string;
   footnote?: string;
   text?: string;
-  caption?: string;
-  shotSide?: 'left' | 'right';
+  label?: string;
+  demoSide?: 'left' | 'right';
   cta?: Cta;
   secondary?: Cta;
+  preview?: string;
   link?: TextLink;
-  shot?: SanityShot;
-  inset?: SanityShot;
+  demo?: SanityDemo;
   bullets?: string[];
-  boards?: { key?: string; name?: string }[];
   fragments?: { kind?: string; label?: string; text?: string }[];
-  views?: { key?: string; label?: string; icon?: string; shot?: SanityShot }[];
-  steps?: { label?: string; shot?: SanityShot }[];
+  views?: { key?: string; label?: string; caption?: string }[];
+  steps?: { label?: string }[];
   items?: never[];
 };
 
-type SanityShot = { name?: string; alt?: string; ratio?: string; caption?: string; mobileName?: string; mobileRatio?: string } | null | undefined;
+type SanityDemo = { demo?: string; label?: string; caption?: string } | null | undefined;
 
-const RATIOS: ShotRatio[] = ['16/10', '4/3', '4/5', '3/2', '1/1'];
-const asRatio = (r: string | undefined, fallbackRatio: ShotRatio): ShotRatio => (RATIOS.includes(r as ShotRatio) ? (r as ShotRatio) : fallbackRatio);
+const isDemoKey = (k: string | undefined): k is DemoKey => DEMO_KEYS.includes(k as DemoKey);
+const isViewKey = (k: string | undefined): k is ViewKey => VIEW_KEYS.includes(k as ViewKey);
 
-function toShot(s: SanityShot): Shot | undefined {
-  if (!s?.name) return undefined;
-  return {
-    name: s.name,
-    alt: s.alt ?? '',
-    ratio: asRatio(s.ratio, '16/10'),
-    caption: s.caption || undefined,
-    mobile: s.mobileName ? { name: s.mobileName, ratio: asRatio(s.mobileRatio, '4/5') } : undefined,
-  };
+/** A demo picked in the CMS; unknown keys are dropped (the demo list lives in code). */
+function toDemo(d: SanityDemo): Demo | undefined {
+  const key = d?.demo;
+  if (!isDemoKey(key)) return undefined;
+  return { key, label: d?.label ?? '', caption: d?.caption || undefined };
 }
 
 const FRAGMENT_KINDS = ['tab', 'sheet', 'note', 'email', 'calendar'] as const;
@@ -110,7 +105,7 @@ function mapSection(s: SanitySection): Section | null {
     case 'featuresSection':
       return { type: 'features' };
     case 'ctaSection':
-      return s.cta ? { type: 'cta', title: s.title ?? '', text: s.text, cta: s.cta, secondary: s.secondary?.label ? s.secondary : undefined, shot: toShot(s.shot) } : null;
+      return s.cta ? { type: 'cta', title: s.title ?? '', text: s.text, cta: s.cta, secondary: s.secondary?.label ? s.secondary : undefined, preview: isDemoKey(s.preview) ? s.preview : undefined } : null;
     case 'scatterSection':
       return {
         type: 'scatter',
@@ -123,8 +118,8 @@ function mapSection(s: SanitySection): Section | null {
         })),
       };
     case 'spotlightSection': {
-      const shot = toShot(s.shot);
-      if (!shot) return null;
+      const demo = toDemo(s.demo);
+      if (!demo) return null;
       return {
         type: 'spotlight',
         anchor: s.anchor,
@@ -133,26 +128,22 @@ function mapSection(s: SanitySection): Section | null {
         body: s.body ?? '',
         bullets: s.bullets ?? [],
         link: link(s.link),
-        shot,
-        inset: toShot(s.inset),
-        shotSide: s.shotSide === 'left' ? 'left' : 'right',
-        boards: nonEmpty(s.boards).flatMap((b) => (b.key && b.name ? [{ key: b.key, name: b.name }] : [])),
+        demo,
+        demoSide: s.demoSide === 'left' ? 'left' : 'right',
       };
     }
     case 'viewsSection': {
-      const views = nonEmpty(s.views).flatMap((v) => {
-        const shot = toShot(v.shot);
-        return v.key && v.label && shot ? [{ key: v.key, label: v.label, icon: v.icon, shot }] : [];
-      });
-      return views.length ? { type: 'views', anchor: s.anchor, eyebrow: s.eyebrow ?? '', title: s.title ?? '', intro: s.intro ?? '', views } : null;
+      const views = nonEmpty(s.views).flatMap((v) => (isViewKey(v.key) && v.label ? [{ key: v.key, label: v.label, caption: v.caption || undefined }] : []));
+      return views.length ? { type: 'views', anchor: s.anchor, eyebrow: s.eyebrow ?? '', title: s.title ?? '', intro: s.intro ?? '', label: s.label ?? s.title ?? '', views } : null;
     }
     case 'flowSection': {
-      const steps = nonEmpty(s.steps).flatMap((st) => {
-        const shot = toShot(st.shot);
-        return st.label && shot ? [{ label: st.label, shot }] : [];
-      });
-      return steps.length ? { type: 'flow', anchor: s.anchor, eyebrow: s.eyebrow ?? '', title: s.title ?? '', body: s.body ?? '', caption: s.caption ?? '', steps } : null;
+      const demo = toDemo(s.demo);
+      if (!demo) return null;
+      const steps = nonEmpty(s.steps).flatMap((st) => (st.label ? [{ label: st.label }] : []));
+      return { type: 'flow', anchor: s.anchor, eyebrow: s.eyebrow ?? '', title: s.title ?? '', body: s.body ?? '', demo, steps };
     }
+    case 'downloadSection':
+      return { type: 'download', eyebrow: s.eyebrow ?? '', title: s.title ?? '', body: s.body ?? '', bullets: s.bullets ?? [] };
     case 'trustSection':
       return { type: 'trust', title: s.title ?? '', intro: s.intro, items: (s.items ?? []) as never, link: link(s.link) };
     case 'factsSection':
@@ -170,7 +161,7 @@ export async function getPage(slug: PageSlug, locale: Locale): Promise<PageConte
     intro?: string;
     eyebrow?: string;
     note?: string;
-    heroShot?: SanityShot;
+    heroDemo?: SanityDemo;
     ctas?: PageContent['ctas'];
     sections?: SanitySection[];
   } | null>(PAGE_QUERY, { slug, locale });
@@ -188,7 +179,7 @@ export async function getPage(slug: PageSlug, locale: Locale): Promise<PageConte
     intro: doc.intro || base.intro,
     eyebrow: doc.eyebrow || base.eyebrow,
     note: doc.note || base.note,
-    heroShot: toShot(doc.heroShot) ?? base.heroShot,
+    heroDemo: toDemo(doc.heroDemo) ?? base.heroDemo,
     ctas: doc.ctas?.length ? doc.ctas : base.ctas,
     sections: sections.length ? sections : base.sections,
   };

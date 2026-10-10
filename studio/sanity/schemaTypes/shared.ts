@@ -41,25 +41,29 @@ export const navLink = defineType({
   preview: { select: { title: 'label', subtitle: 'href' } },
 });
 
-const RATIOS = ['16/10', '4/3', '4/5', '3/2', '1/1'];
+/** Keys of the live product demos built in the website code (apps/web/src/site/components/demos). */
+export const DEMO_KEYS = [
+  { title: 'Applications board (hero)', value: 'board' },
+  { title: 'Applications hub with layouts', value: 'applications' },
+  { title: 'Job offers search', value: 'search' },
+  { title: 'Interview process', value: 'interviews' },
+  { title: 'Profile from a resume', value: 'profile' },
+];
 
 /**
- * A product visual slot. The image is a file in the repo (`apps/web/public/site/shots/<name>.avif`, see
- * docs/website-shots.md), not an upload: the site shows a placeholder until the file exists.
+ * A live product demo: an interactive React island with demo data, picked by key. No images: the demo is code,
+ * so it always matches the product.
  */
-export const productShot = defineType({
-  name: 'productShot',
-  title: 'Product shot',
+export const productDemo = defineType({
+  name: 'productDemo',
+  title: 'Product demo',
   type: 'object',
   fields: [
-    defineField({ name: 'name', title: 'Slot name', type: 'string', description: 'kebab-case file name without extension, e.g. a1-board.', validation: (r) => r.required().regex(/^[a-z0-9][a-z0-9-]*$/) }),
-    defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (r) => r.required() }),
-    defineField({ name: 'ratio', type: 'string', options: { list: RATIOS }, initialValue: '16/10' }),
+    defineField({ name: 'demo', type: 'string', options: { list: DEMO_KEYS }, validation: (r) => r.required() }),
+    defineField({ name: 'label', title: 'Accessible label', type: 'string', description: 'What the demo shows and what visitors can do with it.', validation: (r) => r.required() }),
     defineField({ name: 'caption', type: 'string', description: 'Shown as "Fig. N - caption". Leave empty for no caption.' }),
-    defineField({ name: 'mobileName', title: 'Mobile slot name', type: 'string', description: 'Optional separate crop for phones.' }),
-    defineField({ name: 'mobileRatio', type: 'string', options: { list: RATIOS }, initialValue: '4/5' }),
   ],
-  preview: { select: { title: 'name', subtitle: 'caption' } },
+  preview: { select: { title: 'demo', subtitle: 'caption' } },
 });
 
 export const textLink = defineType({

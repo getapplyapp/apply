@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CtaBand } from './CtaBand';
+import { Download } from './Download';
 import { Facts } from './Facts';
 import { Faq } from './Faq';
 import { Features } from './Features';
@@ -21,7 +22,7 @@ import { cn } from '@/site/lib/cn';
 const wrap = 'mx-auto max-w-6xl px-4 sm:px-6';
 const h2 = 'font-display text-balance text-3xl text-stone-950 sm:text-4xl';
 
-/** Numbered figures a section shows (product shots with a caption). */
+/** Numbered figures a section shows (live demos with a caption). */
 function figuresIn(s: Section): number {
   switch (s.type) {
     case 'spotlight':
@@ -84,7 +85,7 @@ export function SectionRenderer({
               </section>
             );
           case 'steps':
-            return <Steps key={idx} locale={locale} section={s} />;
+            return <Steps key={idx} section={s} />;
           case 'text':
             return (
               <section key={idx} className={cn(wrap, 'pt-20')}>
@@ -145,6 +146,8 @@ export function SectionRenderer({
             return <Trust key={idx} locale={locale} section={s} />;
           case 'facts':
             return <Facts key={idx} section={s} />;
+          case 'download':
+            return <Download key={idx} locale={locale} section={s} />;
         }
       })}
     </>

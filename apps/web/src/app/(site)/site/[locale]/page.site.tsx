@@ -23,8 +23,8 @@ export default async function HomePage({ params }: Props) {
   return (
     <>
       <JsonLd data={softwareApplicationLd(locale, features, plans)} />
-      <HomeHero locale={locale} eyebrow={page.eyebrow} heading={page.heading} intro={page.intro} ctas={page.ctas} note={page.note} shot={page.heroShot} />
-      <SectionRenderer locale={locale} sections={page.sections} features={features} plans={plans} firstFigure={page.heroShot ? 2 : 1} />
+      <HomeHero locale={locale} eyebrow={page.eyebrow} heading={page.heading} intro={page.intro} ctas={page.ctas} note={page.note} demo={page.heroDemo} />
+      <SectionRenderer locale={locale} sections={page.sections} features={features} plans={plans} firstFigure={page.heroDemo ? 2 : 1} />
       <RevealObserver />
     </>
   );

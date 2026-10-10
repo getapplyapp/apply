@@ -43,9 +43,11 @@ export type Ui = {
   footerResources: string;
   footerAccount: string;
   madeIn: string;
-  upToApplications: (n: number | null) => string;
-  jobBoards: string;
   download: string;
+  footerLegal: string;
+  privacy: string;
+  terms: string;
+  consent: { title: string; body: string; accept: string; decline: string };
 };
 
 const en: Ui = {
@@ -90,9 +92,16 @@ const en: Ui = {
   footerResources: 'Resources',
   footerAccount: 'Account',
   madeIn: 'Made in France',
-  upToApplications: (n) => (n === null ? 'Unlimited applications' : `Up to ${n} applications`),
-  jobBoards: 'Job boards in one search',
   download: 'Download for macOS',
+  footerLegal: 'Legal',
+  privacy: 'Privacy',
+  terms: 'Terms',
+  consent: {
+    title: 'Can we measure visits?',
+    body: 'Only page views and button clicks on this website, to see what helps. Nothing is measured unless you accept.',
+    accept: 'Accept',
+    decline: 'Decline',
+  },
 };
 
 export const ui: Record<Locale, Ui> = { en };

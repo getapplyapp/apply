@@ -1,7 +1,7 @@
 import { eyebrow as eyebrowCls } from './styles';
 import { CtaButton } from '@/site/components/ui/CtaButton';
-import { ProductShot } from '@/site/components/ui/ProductShot';
-import type { Cta, Shot } from '@/site/content/types';
+import { LiveDemo } from '@/site/components/demos/LiveDemo';
+import type { Cta, Demo } from '@/site/content/types';
 import type { Locale } from '@/site/lib/i18n';
 
 export function Hero({ locale, heading, intro, ctas, align = 'center', placement = 'hero' }: { locale: Locale; heading: string; intro: string; ctas?: Cta[]; align?: 'center' | 'left'; placement?: string }) {
@@ -21,8 +21,8 @@ export function Hero({ locale, heading, intro, ctas, align = 'center', placement
 }
 
 /**
- * Homepage hero: eyebrow, H1, scope subhead, two buttons and microcopy, then the real product in a frame
- * that overlaps into a stone band. Left-aligned with stacked full-width buttons on phones, centred above.
+ * Homepage hero: eyebrow, H1, scope subhead, two buttons and microcopy, then the live Board demo in a
+ * product window that overlaps into a stone band (hydrated right after idle, ahead of the other demos). Left-aligned with stacked full-width buttons on phones, centred above.
  */
 export function HomeHero({
   locale,
@@ -31,7 +31,7 @@ export function HomeHero({
   intro,
   ctas,
   note,
-  shot,
+  demo,
 }: {
   locale: Locale;
   eyebrow?: string;
@@ -39,7 +39,7 @@ export function HomeHero({
   intro: string;
   ctas?: Cta[];
   note?: string;
-  shot?: Shot;
+  demo?: Demo;
 }) {
   return (
     <section aria-labelledby="home-title" className="pt-12 sm:pt-24">
@@ -66,11 +66,11 @@ export function HomeHero({
         {note && <p className="mt-4 text-sm text-stone-600">{note}</p>}
       </div>
 
-      {shot && (
+      {demo && (
         <div className="relative mt-12 sm:mt-16">
           <div aria-hidden className="absolute inset-x-0 bottom-0 top-1/3 border-t border-stone-200 bg-stone-100" />
           <div className="relative mx-auto max-w-[1168px] px-4 pb-14 sm:px-6 sm:pb-20">
-            <ProductShot locale={locale} shot={shot} figure={1} priority frameClassName="site-fade-right" />
+            <LiveDemo locale={locale} demo={demo} figure={1} eager />
           </div>
         </div>
       )}

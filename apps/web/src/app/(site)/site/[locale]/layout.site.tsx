@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { GeistSans } from 'geist/font/sans';
 import '@/site/site.css';
+import { SiteAnalyticsLoader } from '@/site/components/analytics/SiteAnalyticsLoader';
 import { Footer } from '@/site/components/layout/Footer';
 import { Header } from '@/site/components/layout/Header';
 import { JsonLd } from '@/site/components/seo/JsonLd';
@@ -42,6 +43,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <Header locale={locale} settings={settings} />
         <main id="main">{children}</main>
         <Footer locale={locale} settings={settings} />
+        <SiteAnalyticsLoader labels={t.consent} />
       </body>
     </html>
   );
