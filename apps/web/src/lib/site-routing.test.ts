@@ -37,7 +37,22 @@ test('app paths stay in the app', () => {
   }
 });
 
+test('legal pages are readable by everyone, signed in or not', () => {
+  for (const p of ['/privacy', '/terms']) {
+    assert.deepEqual(siteRoute(p, false), { kind: 'site', rewrite: `/site/en${p}` }, p);
+    assert.deepEqual(siteRoute(p, true), { kind: 'site', rewrite: `/site/en${p}` }, p);
+    assert.deepEqual(siteRoute(`/en${p}`, true), { kind: 'redirect', to: p }, p);
+    assert.deepEqual(siteRoute(`/site/en${p}`, true), { kind: 'redirect', to: p }, p);
+    assert.deepEqual(siteRoute(`/site/en${p}`, false), { kind: 'redirect', to: p }, p);
+  }
+  // Only the exact pages: nothing under them, no look-alikes.
+  for (const p of ['/privacy/x', '/terms-of-use', '/privacyx']) {
+    assert.deepEqual(siteRoute(p, true), { kind: 'app' }, p);
+  }
+});
+
 test('desktop build: no website at all', () => {
   assert.deepEqual(siteRoute('/', false, false), { kind: 'app' });
   assert.deepEqual(siteRoute('/pricing', false, false), { kind: 'app' });
+  assert.deepEqual(siteRoute('/privacy', true, false), { kind: 'app' });
 });

@@ -51,7 +51,7 @@ src/
 ## Public website (same app)
 
 - The marketing website lives in this app: pages in `src/app/(site)/site/[locale]` (internal URLs `/site/en/...`), code in `src/site` (components, content, lib), plus `src/app/og`, `src/app/sitemap.xml`, `src/app/robots.txt`, `src/app/api/revalidate`.
-- Routing (`src/lib/site-routing.ts`, unit-tested, used by `src/proxy.ts`): signed-out visitors see the website on `/`, `/product`, `/pricing`, `/resources/*`; signed-in users never see it (`/` is Home, marketing pages redirect to `/`). Internal `/site/...` and `/en/...` URLs redirect to the clean public URL.
+- Routing (`src/lib/site-routing.ts`, unit-tested, used by `src/proxy.ts`): signed-out visitors see the website on `/`, `/product`, `/pricing`, `/resources/*`; signed-in users never see it (`/` is Home, marketing pages redirect to `/`), except the legal pages `/privacy` and `/terms`, readable by everyone (code-defined text in `src/site/content/legal`, founder-only facts in its `config.ts`). Internal `/site/...` and `/en/...` URLs redirect to the clean public URL.
 - Website files use the `.site.tsx` / `.site.ts` extension. `pnpm build:desktop` sets `APPLY_DESKTOP_BUILD=1`, so `next.config.ts` drops that extension from `pageExtensions` and the website is never compiled into the .dmg (and `APPLY_SITE_ENABLED=0` turns the routing off). Never import `@/site/*` from app code.
 - Two root layouts: `src/app/(app)/layout.tsx` (product) and `src/app/(site)/site/[locale]/layout.site.tsx` (website, static, its own CSS `src/site/site.css`).
 - Sanity Studio: `studio/` at the repo root.

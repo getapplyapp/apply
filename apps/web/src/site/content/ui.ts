@@ -34,6 +34,11 @@ export type Ui = {
   onThisPage: string;
   copyright: (year: number) => string;
   screenshotLabel: string;
+  privacyPolicy: string;
+  termsOfUse: string;
+  legalNav: string;
+  lastUpdated: string;
+  toBeCompleted: (label: string) => string;
 };
 
 const en: Ui = {
@@ -69,6 +74,11 @@ const en: Ui = {
   onThisPage: 'On this page',
   copyright: (year) => `© ${year} applyspace`,
   screenshotLabel: 'Screenshot placeholder',
+  privacyPolicy: 'Privacy policy',
+  termsOfUse: 'Terms of use',
+  legalNav: 'Legal',
+  lastUpdated: 'Last updated',
+  toBeCompleted: (label) => `[to be completed: ${label}]`,
 };
 
 export const ui: Record<Locale, Ui> = { en };

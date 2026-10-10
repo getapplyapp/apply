@@ -6,6 +6,12 @@ import { Button } from '@/components/ui/button';
 import { analytics } from '@/lib/analytics';
 
 /**
+ * Absolute on purpose: the desktop build has no website, and Electron opens `_blank` links in the
+ * system browser, so the policy is always read on applyspace.app.
+ */
+const PRIVACY_POLICY_URL = 'https://applyspace.app/privacy';
+
+/**
  * One-time, non-blocking analytics consent prompt for signed-in users.
  * Floats in the bottom corner (full width minus gutters on small screens), so it
  * never shifts the onboarding layout, its top bar or the app shell. It stays
@@ -32,7 +38,17 @@ export function ConsentBanner() {
     >
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">{t.consent.title}</p>
-        <p className="text-sm leading-relaxed text-muted-foreground">{t.consent.body}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {t.consent.body}{' '}
+          <a
+            href={PRIVACY_POLICY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline underline-offset-4"
+          >
+            {t.consent.privacyLink}
+          </a>
+        </p>
       </div>
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={() => analytics.setConsent(false)}>
