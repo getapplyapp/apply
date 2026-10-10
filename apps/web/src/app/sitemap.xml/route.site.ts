@@ -8,7 +8,7 @@ import { siteUrl } from '@/site/lib/links';
  */
 export const revalidate = 3600;
 
-const STATIC_PATHS = ['/', '/product', '/resources', '/pricing'];
+const STATIC_PATHS = ['/', '/product', '/resources', '/pricing', '/privacy', '/terms'];
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 

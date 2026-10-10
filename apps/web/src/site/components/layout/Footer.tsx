@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ApplyLogo } from './ApplyLogo';
 import type { SiteSettings } from '@/site/content/types';
 import { ui } from '@/site/content/ui';
-import { type Locale } from '@/site/lib/i18n';
+import { localePath, type Locale } from '@/site/lib/i18n';
 import { appHref, internalHref } from '@/site/lib/links';
 
 export function Footer({ locale, settings }: { locale: Locale; settings: SiteSettings }) {
@@ -32,6 +32,15 @@ export function Footer({ locale, settings }: { locale: Locale; settings: SiteSet
       </div>
       <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 pb-10 text-xs text-stone-500 sm:px-6 sm:flex-row sm:justify-between">
         <span>{t.copyright(new Date().getFullYear())}</span>
+        {/* Legal links are code-defined, not CMS nav, so they can never be dropped from the footer. */}
+        <nav aria-label={t.legalNav} className="flex gap-x-6">
+          <Link href={localePath(locale, '/privacy')} className="hover:text-stone-950">
+            {t.privacyPolicy}
+          </Link>
+          <Link href={localePath(locale, '/terms')} className="hover:text-stone-950">
+            {t.termsOfUse}
+          </Link>
+        </nav>
       </div>
     </footer>
   );

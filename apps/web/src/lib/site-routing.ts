@@ -6,6 +6,7 @@
  *
  * - Signed-out visitors see the website on `/` and the marketing pages.
  * - Signed-in users never see the website: `/` is the app Home, marketing pages redirect to it.
+ * - Legal pages (`/privacy`, `/terms`) are the exception: everyone reads them, signed in or not.
  * - The internal `/site/...` URLs and the default-locale prefix (`/en/...`) redirect to the
  *   clean public URL, so search engines index one URL per page.
  */
@@ -16,6 +17,8 @@ export const SITE_INTERNAL_PREFIX = '/site';
 
 /** Website pages (without locale prefix). */
 const PAGE_PREFIXES = ['/product', '/pricing', '/resources'];
+/** Website pages readable by everyone, signed in or not (legal texts). */
+const LEGAL_PAGES = ['/privacy', '/terms'];
 /** Served by the website to everyone, without a session gate. */
 const PUBLIC_SITE_FILES = ['/sitemap.xml', '/robots.txt', '/og', '/api/revalidate'];
 
@@ -38,8 +41,12 @@ function splitLocale(pathname: string): { locale: string; rest: string; prefixed
   return { locale: defaultLocale, rest: pathname, prefixed: false };
 }
 
+function isLegalPage(rest: string): boolean {
+  return LEGAL_PAGES.includes(rest);
+}
+
 function isSitePage(rest: string): boolean {
-  return rest === '/' || PAGE_PREFIXES.some((p) => under(rest, p));
+  return rest === '/' || PAGE_PREFIXES.some((p) => under(rest, p)) || isLegalPage(rest);
 }
 
 function publicPath(locale: string, rest: string): string {
@@ -56,12 +63,12 @@ export function siteRoute(pathname: string, signedIn: boolean, siteEnabled = tru
   if (under(pathname, SITE_INTERNAL_PREFIX)) {
     const inner = pathname.slice(SITE_INTERNAL_PREFIX.length) || '/';
     const { locale, rest } = splitLocale(inner);
-    return { kind: 'redirect', to: signedIn ? '/' : publicPath(locale, rest) };
+    return { kind: 'redirect', to: signedIn && !isLegalPage(rest) ? '/' : publicPath(locale, rest) };
   }
 
   const { locale, rest, prefixed } = splitLocale(pathname);
   if (!isSitePage(rest)) return { kind: 'app' };
-  if (signedIn) return pathname === '/' ? { kind: 'app' } : { kind: 'redirect', to: '/' };
+  if (signedIn && !isLegalPage(rest)) return pathname === '/' ? { kind: 'app' } : { kind: 'redirect', to: '/' };
   if (prefixed && locale === defaultLocale) return { kind: 'redirect', to: rest };
   return { kind: 'site', rewrite: `${SITE_INTERNAL_PREFIX}/${locale}${rest === '/' ? '' : rest}` };
 }
