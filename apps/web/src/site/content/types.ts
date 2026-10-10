@@ -33,13 +33,15 @@ export type Feature = {
   summary: string;
   bullets: string[];
   icon?: string;
+  /** Lowest plan; only a paid plan is shown, as a tag. */
   plan: PlanKey;
-  screenshot?: ImageRef;
-  screenshotAlt: string;
+  /** Planned, not in the product yet: shown with a "Soon" tag. */
+  soon?: boolean;
   order: number;
 };
 
-export type ThemeKey = 'start' | 'find' | 'track' | 'prepare' | 'profile' | 'control';
+/** Areas of the feature grid, in display order (see `themes` in content/fallback/features.ts). */
+export type ThemeKey = 'track' | 'prepare' | 'everywhere' | 'control';
 
 export type PricingPlan = {
   key: PlanKey;
@@ -86,7 +88,8 @@ export type Section =
   | { type: 'text'; title: string; body: string; tone?: 'plain' | 'tinted' }
   | { type: 'faq'; title: string; items: { question: string; answer: string }[]; link?: TextLink }
   | { type: 'plans'; title?: string; intro?: string; variant: 'compact' | 'full'; note?: string; footnote?: string }
-  | { type: 'features' }
+  /** Every Feature document as a grid of short cards, grouped by area (shipped and planned). */
+  | { type: 'features'; anchor?: string; eyebrow?: string; title?: string; intro?: string; link?: TextLink }
   /** `preview`: a faded, non-interactive crop of a demo under the buttons. */
   | { type: 'cta'; title: string; text?: string; cta: Cta; secondary?: Cta; preview?: DemoKey }
   /** The problem told as a scenario: the scattered tools of one application. */

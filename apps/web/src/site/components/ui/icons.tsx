@@ -23,6 +23,7 @@ import {
   Logout03Icon,
   Mail01Icon,
   Note01Icon,
+  SmartPhone01Icon,
   Tick02Icon,
   UserIcon,
   Xls01Icon,
@@ -55,6 +56,7 @@ const ICONS: Record<string, IconSvgElement> = {
   upload: FileUploadIcon,
   profile: UserIcon,
   tick: Tick02Icon,
+  mobile: SmartPhone01Icon,
 };
 
 /** Decorative feature icon by key (Hugeicons, like the app). Unknown keys render nothing. */

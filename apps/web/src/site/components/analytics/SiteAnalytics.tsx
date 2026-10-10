@@ -1,14 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { buttonStyles } from '@/site/components/ui/buttonStyles';
 
 /**
- * Website analytics, opt-in and out of the first load (SiteAnalyticsLoader fetches this island when the browser
- * is idle). posthog-js is fetched only after the visitor accepts (or already accepted analytics in the app), and
- * only page views and CTA clicks are sent (no autocapture, no session replay, no surveys). The website's own choice is stored apart from the
- * app's, because the app consent also covers identification by email: accepting here does not opt in the app.
- * A "no" given in the app is respected here.
+ * Website cookie consent and analytics, out of the first load (SiteAnalyticsLoader fetches this island when the
+ * browser is idle, or when "Cookie settings" is pressed). It opens a centered modal dialog while no choice is
+ * stored. posthog-js is fetched only after the visitor accepts (or already accepted analytics in the app), and
+ * only page views and CTA clicks are sent (no autocapture, no session replay, no surveys). The website's choice is
+ * stored apart from the app's, because the app consent also covers identification by email: accepting here does
+ * not opt in the app. A "no" given in the app is respected here. Closing the dialog (Esc) is not a choice: it
+ * opens again on the next page load.
  */
 
 const TOKEN = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? '';
@@ -19,6 +21,7 @@ const YES = ['1', 'true', 'yes', 'granted'];
 const NO = ['0', 'false', 'no', 'denied'];
 
 type Status = 'off' | 'pending' | 'granted' | 'denied';
+export type ConsentLabels = { title: string; body: string; accept: string; decline: string; policy: string; policyHref: string };
 
 function read(key: string): string | null {
   try {
@@ -41,8 +44,10 @@ function storedStatus(): Status {
 
 type PostHog = typeof import('posthog-js').default;
 let client: Promise<PostHog> | null = null;
+/** Events leave the page only while this is true (a later "Reject all" stops them without reloading). */
+let allowed = false;
 
-/** Loads and initialises posthog-js once (this island itself is fetched when the browser is idle). */
+/** Loads and initialises posthog-js once. */
 function loadPostHog(): Promise<PostHog> {
   client ??= import('posthog-js').then(({ default: posthog }) => {
     if (!posthog.__loaded) {
@@ -59,6 +64,7 @@ function loadPostHog(): Promise<PostHog> {
         disable_session_recording: true,
         disable_surveys: true,
         disable_external_dependency_loading: true,
+        before_send: (event) => (allowed ? event : null),
       });
     }
     return posthog;
@@ -75,14 +81,26 @@ function ctaOf(target: EventTarget | null): { placement: string; href: string } 
   return { placement, href: url.origin === window.location.origin ? url.pathname + url.hash : url.origin };
 }
 
-export function SiteAnalytics({ labels }: { labels: { title: string; body: string; accept: string; decline: string } }) {
+const FOCUSABLE = 'a[href], button:not([disabled])';
+
+/** `reopen` grows each time "Cookie settings" is pressed. */
+export function SiteAnalytics({ labels, reopen }: { labels: ConsentLabels; reopen: number }) {
   const [status, setStatus] = useState<Status>('off');
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    setStatus(storedStatus()); // eslint-disable-line react-hooks/set-state-in-effect -- reads localStorage once, after hydration
+    const s = storedStatus();
+    setStatus(s); // eslint-disable-line react-hooks/set-state-in-effect -- reads localStorage once, after hydration
+    if (s === 'pending') setOpen(true);
   }, []);
 
   useEffect(() => {
+    if (reopen > 0) setOpen(true); // eslint-disable-line react-hooks/set-state-in-effect -- an outside request to open
+  }, [reopen]);
+
+  useEffect(() => {
+    allowed = status === 'granted';
     if (status !== 'granted') return;
     let alive = true;
     loadPostHog().catch(() => undefined);
@@ -98,36 +116,74 @@ export function SiteAnalytics({ labels }: { labels: { title: string; body: strin
     };
   }, [status]);
 
-  if (status !== 'pending') return null;
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (open && !d.open) {
+      d.showModal();
+      d.focus();
+    } else if (!open && d.open) {
+      d.close();
+    }
+  }, [open]);
 
   const choose = (accepted: boolean) => {
     try {
       window.localStorage.setItem(SITE_KEY, accepted ? 'granted' : 'denied');
     } catch {
       // Storage blocked: the choice lasts for this page only.
+      setStatus(accepted && TOKEN && HOST ? 'granted' : 'denied');
+      setOpen(false);
+      return;
     }
-    setStatus(accepted ? 'granted' : 'denied');
+    setStatus(storedStatus());
+    setOpen(false);
+  };
+
+  /** Keeps Tab inside the dialog (the page behind is inert, but Tab could still reach the browser UI). */
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
+    if (e.key !== 'Tab' || !ref.current) return;
+    const items = Array.from(ref.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey && (active === first || active === ref.current)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      first.focus();
+    }
   };
 
   return (
-    <div
-      role="dialog"
-      aria-live="polite"
-      aria-label={labels.title}
-      className="fixed inset-x-4 bottom-4 z-50 flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-4 sm:inset-x-auto sm:right-4 sm:w-96"
+    <dialog
+      ref={ref}
+      tabIndex={-1}
+      aria-labelledby="cookie-title"
+      aria-describedby="cookie-body"
+      onClose={() => setOpen(false)}
+      onKeyDown={onKeyDown}
+      className="site-dialog m-auto w-[calc(100%-32px)] max-w-[440px] rounded-2xl border border-stone-200 bg-white p-6 text-stone-950 shadow-[0_24px_48px_-12px_rgb(28_25_23/0.18)] outline-none backdrop:bg-stone-950/20 sm:p-7"
     >
-      <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-stone-950">{labels.title}</p>
-        <p className="text-sm leading-relaxed text-stone-600">{labels.body}</p>
-      </div>
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={() => choose(false)} className={buttonStyles('secondary')}>
+      <h2 id="cookie-title" className="text-pretty text-base font-semibold leading-[1.4] tracking-tight">
+        {labels.title}
+      </h2>
+      <p id="cookie-body" className="mt-2 text-pretty text-sm leading-[1.6] text-stone-600">
+        {labels.body}
+      </p>
+      <a href={labels.policyHref} className="mt-3 inline-flex min-h-8 items-center text-sm font-medium text-stone-950 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-950">
+        {labels.policy}
+      </a>
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        <button type="button" onClick={() => choose(false)} className={buttonStyles('secondary', 'md', 'w-full')}>
           {labels.decline}
         </button>
-        <button type="button" onClick={() => choose(true)} className={buttonStyles('primary')}>
+        <button type="button" onClick={() => choose(true)} className={buttonStyles('secondary', 'md', 'w-full')}>
           {labels.accept}
         </button>
       </div>
-    </div>
+    </dialog>
   );
 }

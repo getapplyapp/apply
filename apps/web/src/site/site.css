@@ -90,7 +90,22 @@
   }
 }
 
+@keyframes site-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
+  /* Cookie dialog (components/analytics/SiteAnalytics.tsx). */
+  .site-dialog[open] {
+    animation: site-dialog-in 200ms var(--ease-site);
+  }
+  .site-dialog[open]::backdrop {
+    animation: site-fade-in 200ms var(--ease-site);
+  }
+
   /* Tab panel cross-fade (Applications views). */
   .site-fade-in:not([hidden]) {
     animation: site-fade-in 150ms var(--ease-site);

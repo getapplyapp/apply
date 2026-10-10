@@ -1,4 +1,72 @@
-import type { PageContent, PageSlug } from '../types';
+import type { PageContent, PageSlug, Section } from '../types';
+
+/** Product sections shared by the homepage and /product (one source, same copy and demos). */
+const searchSpotlight: Section = {
+  type: 'spotlight',
+  anchor: 'job-offers',
+  eyebrow: 'Job offers',
+  title: 'The offers that fit, in one list.',
+  body: 'Describe what you look for once: title, city, contract, remote. Run the search from the desktop app and new offers land in your account, without duplicates.',
+  bullets: ['Search profiles you can reuse', 'One list, no duplicates', 'Save an offer to your applications in one click'],
+  demoSide: 'right',
+  demo: {
+    key: 'search',
+    label: 'Live demo of the job offers search: type in the field, pick a contract, a city or remote, and save offers.',
+    caption: "Search profile 'Product Designer, Paris'. Try the filters.",
+  },
+};
+
+const applicationsViews: Section = {
+  type: 'views',
+  anchor: 'applications',
+  eyebrow: 'Applications',
+  title: 'See every application your way.',
+  intro: 'Four views on the same data. Move a card, and the table, timeline and map follow.',
+  label: 'Live demo of the Applications hub with Board, Table, Timeline and Map layouts',
+  views: [
+    { key: 'board', label: 'Board', caption: 'Drag applications from one status to the next.' },
+    { key: 'table', label: 'Table', caption: 'Sort by company, status or date.' },
+    { key: 'timeline', label: 'Timeline', caption: "See what happened, and what's next." },
+    { key: 'map', label: 'Map', caption: 'See where your applications are, and how far.' },
+  ],
+};
+
+const interviewsSpotlight: Section = {
+  type: 'spotlight',
+  anchor: 'interviews',
+  eyebrow: 'Interviews',
+  title: 'Walk into every interview prepared.',
+  body: "Each interview keeps its date, the people you meet, your notes and your questions, linked to the application. After the call, write down how it went while it's fresh.",
+  bullets: ['Every round on one timeline', 'Notes and questions per interview', 'Linked to the offer and the company'],
+  demoSide: 'left',
+  demo: {
+    key: 'interviews',
+    label: 'Live demo of an interview process: select a round to see its date, people, prep notes and questions.',
+    caption: 'An interview process, round by round. Click through it.',
+  },
+};
+
+const profileFlow: Section = {
+  type: 'flow',
+  anchor: 'profile',
+  eyebrow: 'Profile',
+  title: 'Your profile, filled from your resume.',
+  body: 'Drop a PDF or DOCX, or your LinkedIn export. Your experience, education, languages and skills are filled in for you to review and edit.',
+  steps: [{ label: 'Import your resume' }, { label: 'Fields are read' }, { label: 'Review your profile' }],
+  demo: {
+    key: 'profile',
+    label: 'Live demo of the resume import: press Import a resume to fill the profile.',
+    caption: 'Resume to profile. Press Import a resume.',
+  },
+};
+
+const features: Section = {
+  type: 'features',
+  anchor: 'features',
+  eyebrow: 'All features',
+  title: 'Everything in applyspace.',
+  intro: 'What you can use today, and what comes next.',
+};
 
 export const pages: Record<PageSlug, PageContent> = {
   home: {
@@ -33,62 +101,11 @@ export const pages: Record<PageSlug, PageContent> = {
           { kind: 'calendar', label: 'Calendar', text: 'Call with recruiter' },
         ],
       },
-      {
-        type: 'spotlight',
-        anchor: 'job-offers',
-        eyebrow: 'Job offers',
-        title: 'The offers that fit, in one list.',
-        body: 'Describe what you look for once: title, city, contract, remote. Run the search from the desktop app and new offers land in your account, without duplicates.',
-        bullets: ['Search profiles you can reuse', 'One list, no duplicates', 'Save an offer to your applications in one click'],
-        link: { label: 'See how search works', href: '/product#offers-search' },
-        demoSide: 'right',
-        demo: {
-          key: 'search',
-          label: 'Live demo of the job offers search: type in the field, pick a contract, a city or remote, and save offers.',
-          caption: "Search profile 'Product Designer, Paris'. Try the filters.",
-        },
-      },
-      {
-        type: 'views',
-        anchor: 'applications',
-        eyebrow: 'Applications',
-        title: 'See every application your way.',
-        intro: 'Four views on the same data. Move a card, and the table, timeline and map follow.',
-        label: 'Live demo of the Applications hub with Board, Table, Timeline and Map layouts',
-        views: [
-          { key: 'board', label: 'Board', caption: 'Drag applications from one status to the next.' },
-          { key: 'table', label: 'Table', caption: 'Sort by company, status or date.' },
-          { key: 'timeline', label: 'Timeline', caption: "See what happened, and what's next." },
-          { key: 'map', label: 'Map', caption: 'See where your applications are, and how far.' },
-        ],
-      },
-      {
-        type: 'spotlight',
-        anchor: 'interviews',
-        eyebrow: 'Interviews',
-        title: 'Walk into every interview prepared.',
-        body: "Each interview keeps its date, the people you meet, your notes and your questions, linked to the application. After the call, write down how it went while it's fresh.",
-        bullets: ['Every round on one timeline', 'Notes and questions per interview', 'Linked to the offer and the company'],
-        demoSide: 'left',
-        demo: {
-          key: 'interviews',
-          label: 'Live demo of an interview process: select a round to see its date, people, prep notes and questions.',
-          caption: 'An interview process, round by round. Click through it.',
-        },
-      },
-      {
-        type: 'flow',
-        anchor: 'profile',
-        eyebrow: 'Profile',
-        title: 'Your profile, filled from your resume.',
-        body: 'Drop a PDF or DOCX, or your LinkedIn export. Your experience, education, languages and skills are filled in for you to review and edit.',
-        steps: [{ label: 'Import your resume' }, { label: 'Fields are read' }, { label: 'Review your profile' }],
-        demo: {
-          key: 'profile',
-          label: 'Live demo of the resume import: press Import a resume to fill the profile.',
-          caption: 'Resume to profile. Press Import a resume.',
-        },
-      },
+      searchSpotlight,
+      applicationsViews,
+      interviewsSpotlight,
+      profileFlow,
+      { ...features, link: { label: 'Take the product tour', href: '/product' } },
       {
         type: 'steps',
         title: 'From first search to signed offer.',
@@ -114,7 +131,7 @@ export const pages: Record<PageSlug, PageContent> = {
           { icon: 'lock', title: 'Private to your account', text: 'Your offers, applications and notes are scoped to your account. Nobody else can read them.' },
           { icon: 'analytics', title: 'Analytics only if you agree', text: 'Usage analytics are off until you opt in, and you can turn them off any time.' },
           { icon: 'ai', title: 'Your AI, your account', text: "AI features run on your own AI accounts. We don't resell your data or train AI on it." },
-          { icon: 'leave', title: 'Leave whenever you want', text: 'Export your data or delete your account from Settings.' },
+          { icon: 'leave', title: 'Leave whenever you want', text: 'Data export and account deletion are coming to Settings.' },
         ],
       },
       {
@@ -145,7 +162,7 @@ export const pages: Record<PageSlug, PageContent> = {
           { question: 'Who can see my data?', answer: 'Only you. Your data is scoped to your account.' },
           { question: 'How does the AI work?', answer: 'AI features use your own AI account, so you stay in control of what is sent and to whom.' },
           { question: 'Can I import my resume?', answer: 'Yes: PDF, DOCX or your LinkedIn export.' },
-          { question: 'Can I leave with my data?', answer: 'Yes. Export your data or delete your account from Settings, whenever you want.' },
+          { question: 'Can I leave with my data?', answer: 'Yes. Data export and account deletion are coming to Settings, so you can leave whenever you want.' },
         ],
       },
       {
@@ -164,15 +181,20 @@ export const pages: Record<PageSlug, PageContent> = {
       title: 'Product: search, track and prepare in one app',
       description: 'Job offers search, an applications hub with board, table, timeline and map, interview tracking and a resume-powered profile.',
     },
-    heading: 'Everything for your job search, in one app',
-    intro: 'From the first offer to the final interview, every space works on the same data.',
+    heading: 'Everything for your job search, in one app.',
+    intro: 'From the first offer to the final interview, every space works on the same data. Try each one below.',
     sections: [
-      { type: 'features' },
+      applicationsViews,
+      searchSpotlight,
+      interviewsSpotlight,
+      profileFlow,
+      features,
       {
         type: 'cta',
-        title: 'See it with your own search',
+        title: 'Give your job search one space.',
         text: 'Free to start. Import your resume and set up in minutes.',
-        cta: { label: 'Start for free', href: '/login', kind: 'app' },
+        cta: { label: 'Get started free', href: '/login', kind: 'app' },
+        secondary: { label: 'Download for macOS', href: '/download', kind: 'download' },
       },
     ],
   },

@@ -32,9 +32,11 @@ export type Ui = {
   notFoundTitle: string;
   notFoundText: string;
   backHome: string;
-  onThisPage: string;
   copyright: (year: number) => string;
-  screenshotLabel: string;
+  featuresTitle: string;
+  soon: string;
+  soonLegend: string;
+  cookieSettings: string;
   figure: string;
   getStarted: string;
   startPlan: string;
@@ -47,7 +49,7 @@ export type Ui = {
   footerLegal: string;
   privacy: string;
   terms: string;
-  consent: { title: string; body: string; accept: string; decline: string };
+  consent: { title: string; body: string; accept: string; decline: string; policy: string };
 };
 
 const en: Ui = {
@@ -81,9 +83,11 @@ const en: Ui = {
   notFoundTitle: 'Page not found',
   notFoundText: 'The page you are looking for does not exist or has moved.',
   backHome: 'Back to home',
-  onThisPage: 'On this page',
   copyright: (year) => `© ${year} applyspace`,
-  screenshotLabel: 'Screenshot placeholder',
+  featuresTitle: 'Everything in applyspace.',
+  soon: 'Soon',
+  soonLegend: 'On the roadmap, not in the app yet.',
+  cookieSettings: 'Cookie settings',
   figure: 'Fig.',
   getStarted: 'Get started',
   startPlan: 'Start free',
@@ -97,10 +101,11 @@ const en: Ui = {
   privacy: 'Privacy',
   terms: 'Terms',
   consent: {
-    title: 'Can we measure visits?',
-    body: 'Only page views and button clicks on this website, to see what helps. Nothing is measured unless you accept.',
-    accept: 'Accept',
-    decline: 'Decline',
+    title: 'applyspace uses cookies to offer you a better experience.',
+    body: 'By clicking “Accept all”, you agree to the storing of cookies on your device for functional and analytics purposes. You can change your choice at any time from the footer.',
+    accept: 'Accept all',
+    decline: 'Reject all',
+    policy: 'Privacy policy',
   },
 };
 

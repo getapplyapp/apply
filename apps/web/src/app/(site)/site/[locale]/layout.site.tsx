@@ -10,6 +10,7 @@ import { ui } from '@/site/content/ui';
 import { getSiteSettings } from '@/site/lib/content';
 import { SITE_URL, isIndexable } from '@/site/lib/env';
 import { isLocale, locales } from '@/site/lib/i18n';
+import { internalHref } from '@/site/lib/links';
 import { organizationLd, websiteLd } from '@/site/lib/jsonld';
 
 export const dynamicParams = false;
@@ -43,7 +44,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <Header locale={locale} settings={settings} />
         <main id="main">{children}</main>
         <Footer locale={locale} settings={settings} />
-        <SiteAnalyticsLoader labels={t.consent} />
+        <SiteAnalyticsLoader labels={{ ...t.consent, policyHref: internalHref(locale, '/privacy') }} />
       </body>
     </html>
   );

@@ -77,6 +77,12 @@ export function Footer({ locale, settings }: { locale: Locale; settings: SiteSet
                   {t.terms}
                 </Link>
               </li>
+              <li>
+                {/* Opened by SiteAnalyticsLoader (click delegation), so the footer stays server-rendered. */}
+                <button type="button" data-cookie-settings className={linkCls}>
+                  {t.cookieSettings}
+                </button>
+              </li>
             </ul>
           </div>
         </nav>
