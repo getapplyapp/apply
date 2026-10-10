@@ -1,5 +1,7 @@
 'use client';
 
+// First: PostHog must be initialised before analytics is read during the first render.
+import '@/components/analytics/posthogInit';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type { Locale, T } from '@/lib/i18n';

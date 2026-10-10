@@ -1,5 +1,5 @@
-import { SITE_URL } from './env';
-import { localePath, type Locale } from './i18n';
+import { DESKTOP_DOWNLOAD_URL, SITE_URL } from './env';
+import { defaultLocale, localePath, type Locale } from './i18n';
 import type { Cta } from '@/site/content/types';
 
 /** Absolute URL on the marketing site. */
@@ -18,15 +18,25 @@ export function appHref(path = '/login', placement?: string): string {
   return `${url.pathname}${url.search}`;
 }
 
+/**
+ * Desktop download. Until NEXT_PUBLIC_DESKTOP_DOWNLOAD_URL is set, it opens the homepage section that
+ * explains the desktop app (`/#download`).
+ */
+export function downloadHref(locale: Locale = defaultLocale): string {
+  if (DESKTOP_DOWNLOAD_URL) return DESKTOP_DOWNLOAD_URL;
+  return `${localePath(locale, '/')}#download`;
+}
+
 /** Resolve a CMS/fallback CTA to a final href. */
 export function ctaHref(cta: Cta, locale: Locale, placement?: string): string {
   if (cta.kind === 'app') return appHref(cta.href, placement);
+  if (cta.kind === 'download') return downloadHref(locale);
   return localePath(locale, cta.href);
 }
 
 /** Internal href that may carry a #anchor. */
 export function internalHref(locale: Locale, href: string): string {
-  if (/^https?:\/\//.test(href)) return href;
+  if (/^(https?:|mailto:)/.test(href)) return href;
   const [path, hash] = href.split('#');
   return localePath(locale, path || '/') + (hash ? `#${hash}` : '');
 }

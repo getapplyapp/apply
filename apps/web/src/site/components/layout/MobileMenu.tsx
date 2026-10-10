@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Cancel01Icon, Menu01Icon } from '@hugeicons/core-free-icons';
 import { buttonStyles } from '@/site/components/ui/buttonStyles';
 
 type NavItem = { label: string; href: string };
@@ -42,7 +40,10 @@ export function MobileMenu({
         onClick={() => setOpenOn(open ? null : pathname)}
         className="flex size-10 items-center justify-center rounded-full hover:bg-stone-100"
       >
-        <HugeiconsIcon icon={open ? Cancel01Icon : Menu01Icon} size={22} strokeWidth={1.8} />
+        {/* Hugeicons Menu01 and Cancel01, inlined to keep the icon library out of the first-load JavaScript. */}
+        <svg aria-hidden width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <path d={open ? 'M18 6L6 18M18 18L6 6' : 'M4 5H20M4 12H20M4 19H20'} />
+        </svg>
       </button>
       {open && (
         <div id="mobile-menu" className="absolute inset-x-0 top-full border-t border-stone-200 bg-white px-4 pb-6 pt-2">

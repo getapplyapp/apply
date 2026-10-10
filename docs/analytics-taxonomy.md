@@ -13,10 +13,11 @@ Naming: `snake_case`, `object_action` in past tense (`cv_uploaded`), `*_failed` 
 
 ## Consent
 
-- Analytics is opt-in. PostHog initialises with `opt_out_capturing_by_default: true` (`instrumentation-client.ts`): until the user accepts, nothing is captured (no events, pageviews, exceptions or identify). `analytics.capture` and `identify` are also no-ops without consent.
+- Analytics is opt-in. In the app, PostHog initialises with `opt_out_capturing_by_default: true` (`apps/web/src/components/analytics/posthogInit.ts`, imported first by `Providers`): until the user accepts, nothing is captured (no events, pageviews, exceptions or identify). `analytics.capture` and `identify` are also no-ops without consent.
 - Signed-in users see a small non-blocking prompt (`ConsentBanner`, bottom corner, EN and FR) until they choose Accept or Decline. The choice is stored by posthog-js on the device and persists across sessions on web and desktop.
 - Settings > Privacy > "Usage analytics" switch defaults to off and reflects the stored choice. On = `opt_in_capturing`; off = `reset()` then `opt_out_capturing` (drops the identity).
 - Consent states: `pending` (no choice, prompt shown, nothing captured), `granted`, `denied`.
+- Website (signed-out pages, `src/site`): posthog-js is not in the first load. `SiteAnalytics` (fetched on idle) shows its own small prompt; its choice is stored apart (`localStorage['applyspace:site-analytics']`), because the app consent also covers identification by email. A "no" given in the app is respected on the website, a "yes" in the app counts as a yes there. After consent, posthog-js is imported and initialised with page views (`history_change`) only: no autocapture, replay, surveys, heatmaps or exceptions.
 
 ## Events
 
@@ -42,7 +43,9 @@ Naming: `snake_case`, `object_action` in past tense (`cv_uploaded`), `*_failed` 
 | `profile_section_saved` / `profile_section_removed` | `section` | Profile editor |
 | `linkedin_profile_sync_completed` | none | Settings profile sync |
 | `settings_saved` | `section` (`profile`/`search_criteria`) | Settings tab saved |
-| `$exception` | PostHog default | `global-error.tsx` (`captureException`) and `capture_exceptions: true` |
+| `website_cta_clicked` | `placement` (`home-hero-primary`, `header-start`, `footer-download`, ...), `target` (path or origin) | Website only, after consent: a click on a CTA (`data-cta`) or on any link into the app (`utm_source=website`). Captured directly in `SiteAnalytics`, outside the typed app helper |
+| `$pageview` | PostHog default | Website only, after consent |
+| `$exception` | PostHog default | `global-error.tsx` (`captureException`, posthog-js imported on demand) and `capture_exceptions: true` (app only) |
 
 ### Pending call sites
 

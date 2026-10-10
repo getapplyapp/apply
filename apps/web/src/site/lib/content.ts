@@ -1,7 +1,7 @@
 import type { Locale } from './i18n';
 import { sanityFetch, sanityImageUrl } from './sanity';
 import * as fallback from '@/site/content/fallback';
-import type { Feature, ImageRef, PageContent, PageSlug, PricingPlan, Resource, Section, SiteSettings } from '@/site/content/types';
+import { DEMO_KEYS, VIEW_KEYS, type Cta, type Demo, type DemoKey, type Feature, type ImageRef, type PageContent, type PageSlug, type PricingPlan, type Resource, type Section, type SiteSettings, type TextLink, type ViewKey } from '@/site/content/types';
 import type { PortableTextBlock } from '@portabletext/react';
 
 /**
@@ -38,7 +38,7 @@ export async function getSiteSettings(locale: Locale): Promise<SiteSettings> {
 const PAGE_QUERY = `*[_type == "page" && slug == $slug && language == $locale][0]{
   "slug": slug,
   "seo": {"title": seoTitle, "description": seoDescription, "noindex": noindex, "ogImage": ogImage},
-  heading, intro, ctas[]{label, href, kind},
+  heading, intro, eyebrow, note, heroDemo, ctas[]{label, href, kind},
   sections[]{
     ...,
     _type == "cardsSection" => {items[]{title, text, href, icon}},
@@ -47,24 +47,107 @@ const PAGE_QUERY = `*[_type == "page" && slug == $slug && language == $locale][0
   }
 }`;
 
-type SanitySection = { _type: string; title?: string; intro?: string; body?: string; tone?: 'plain' | 'tinted'; variant?: 'compact' | 'full'; note?: string; text?: string; cta?: PageContent['ctas'] extends (infer C)[] | undefined ? C : never; items?: never[] };
+/** Raw section as stored in Sanity (`...` projection); mapped and validated below. */
+type SanitySection = {
+  _type: string;
+  anchor?: string;
+  eyebrow?: string;
+  title?: string;
+  intro?: string;
+  body?: string;
+  tone?: 'plain' | 'tinted';
+  variant?: 'compact' | 'full';
+  note?: string;
+  footnote?: string;
+  text?: string;
+  label?: string;
+  demoSide?: 'left' | 'right';
+  cta?: Cta;
+  secondary?: Cta;
+  preview?: string;
+  link?: TextLink;
+  demo?: SanityDemo;
+  bullets?: string[];
+  fragments?: { kind?: string; label?: string; text?: string }[];
+  views?: { key?: string; label?: string; caption?: string }[];
+  steps?: { label?: string }[];
+  items?: never[];
+};
+
+type SanityDemo = { demo?: string; label?: string; caption?: string } | null | undefined;
+
+const isDemoKey = (k: string | undefined): k is DemoKey => DEMO_KEYS.includes(k as DemoKey);
+const isViewKey = (k: string | undefined): k is ViewKey => VIEW_KEYS.includes(k as ViewKey);
+
+/** A demo picked in the CMS; unknown keys are dropped (the demo list lives in code). */
+function toDemo(d: SanityDemo): Demo | undefined {
+  const key = d?.demo;
+  if (!isDemoKey(key)) return undefined;
+  return { key, label: d?.label ?? '', caption: d?.caption || undefined };
+}
+
+const FRAGMENT_KINDS = ['tab', 'sheet', 'note', 'email', 'calendar'] as const;
+const nonEmpty = <T>(xs: (T | undefined | null)[] | undefined): T[] => (xs ?? []).filter((x): x is T => x != null);
+const link = (l?: TextLink): TextLink | undefined => (l?.label && l?.href ? l : undefined);
 
 function mapSection(s: SanitySection): Section | null {
   switch (s._type) {
     case 'cardsSection':
       return { type: 'cards', title: s.title ?? '', intro: s.intro, items: (s.items ?? []) as never };
     case 'stepsSection':
-      return { type: 'steps', title: s.title ?? '', intro: s.intro, items: (s.items ?? []) as never };
+      return { type: 'steps', eyebrow: s.eyebrow, title: s.title ?? '', intro: s.intro, items: (s.items ?? []) as never };
     case 'textSection':
       return { type: 'text', title: s.title ?? '', body: s.body ?? '', tone: s.tone };
     case 'faqSection':
-      return { type: 'faq', title: s.title ?? '', items: (s.items ?? []) as never };
+      return { type: 'faq', title: s.title ?? '', items: (s.items ?? []) as never, link: link(s.link) };
     case 'plansSection':
-      return { type: 'plans', title: s.title, intro: s.intro, variant: s.variant ?? 'full', note: s.note };
+      return { type: 'plans', title: s.title, intro: s.intro, variant: s.variant ?? 'full', note: s.note, footnote: s.footnote };
     case 'featuresSection':
       return { type: 'features' };
     case 'ctaSection':
-      return s.cta ? { type: 'cta', title: s.title ?? '', text: s.text, cta: s.cta } : null;
+      return s.cta ? { type: 'cta', title: s.title ?? '', text: s.text, cta: s.cta, secondary: s.secondary?.label ? s.secondary : undefined, preview: isDemoKey(s.preview) ? s.preview : undefined } : null;
+    case 'scatterSection':
+      return {
+        type: 'scatter',
+        title: s.title ?? '',
+        body: s.body ?? '',
+        fragments: nonEmpty(s.fragments).map((f) => ({
+          kind: FRAGMENT_KINDS.includes(f.kind as (typeof FRAGMENT_KINDS)[number]) ? (f.kind as (typeof FRAGMENT_KINDS)[number]) : 'note',
+          label: f.label ?? '',
+          text: f.text ?? '',
+        })),
+      };
+    case 'spotlightSection': {
+      const demo = toDemo(s.demo);
+      if (!demo) return null;
+      return {
+        type: 'spotlight',
+        anchor: s.anchor,
+        eyebrow: s.eyebrow ?? '',
+        title: s.title ?? '',
+        body: s.body ?? '',
+        bullets: s.bullets ?? [],
+        link: link(s.link),
+        demo,
+        demoSide: s.demoSide === 'left' ? 'left' : 'right',
+      };
+    }
+    case 'viewsSection': {
+      const views = nonEmpty(s.views).flatMap((v) => (isViewKey(v.key) && v.label ? [{ key: v.key, label: v.label, caption: v.caption || undefined }] : []));
+      return views.length ? { type: 'views', anchor: s.anchor, eyebrow: s.eyebrow ?? '', title: s.title ?? '', intro: s.intro ?? '', label: s.label ?? s.title ?? '', views } : null;
+    }
+    case 'flowSection': {
+      const demo = toDemo(s.demo);
+      if (!demo) return null;
+      const steps = nonEmpty(s.steps).flatMap((st) => (st.label ? [{ label: st.label }] : []));
+      return { type: 'flow', anchor: s.anchor, eyebrow: s.eyebrow ?? '', title: s.title ?? '', body: s.body ?? '', demo, steps };
+    }
+    case 'downloadSection':
+      return { type: 'download', eyebrow: s.eyebrow ?? '', title: s.title ?? '', body: s.body ?? '', bullets: s.bullets ?? [] };
+    case 'trustSection':
+      return { type: 'trust', title: s.title ?? '', intro: s.intro, items: (s.items ?? []) as never, link: link(s.link) };
+    case 'factsSection':
+      return { type: 'facts', eyebrow: s.eyebrow, title: s.title ?? '', items: (s.items ?? []) as never };
     default:
       return null;
   }
@@ -76,6 +159,9 @@ export async function getPage(slug: PageSlug, locale: Locale): Promise<PageConte
     seo?: { title?: string; description?: string; noindex?: boolean; ogImage?: SanityImage };
     heading?: string;
     intro?: string;
+    eyebrow?: string;
+    note?: string;
+    heroDemo?: SanityDemo;
     ctas?: PageContent['ctas'];
     sections?: SanitySection[];
   } | null>(PAGE_QUERY, { slug, locale });
@@ -91,6 +177,9 @@ export async function getPage(slug: PageSlug, locale: Locale): Promise<PageConte
     },
     heading: doc.heading || base.heading,
     intro: doc.intro || base.intro,
+    eyebrow: doc.eyebrow || base.eyebrow,
+    note: doc.note || base.note,
+    heroDemo: toDemo(doc.heroDemo) ?? base.heroDemo,
     ctas: doc.ctas?.length ? doc.ctas : base.ctas,
     sections: sections.length ? sections : base.sections,
   };

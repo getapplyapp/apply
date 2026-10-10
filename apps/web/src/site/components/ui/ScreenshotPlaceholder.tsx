@@ -36,7 +36,7 @@ export function ScreenshotPlaceholder({
     <div
       role="img"
       aria-label={alt}
-      className={cn('flex aspect-[16/10] w-full items-center justify-center rounded-3xl bg-stone-100 p-6 text-center', className)}
+      className={cn('flex aspect-[16/10] w-full flex-col items-center justify-center gap-1 rounded-3xl bg-stone-100 p-6 text-center', className)}
     >
       <span className="text-xs text-stone-500">{label}</span>
     </div>
