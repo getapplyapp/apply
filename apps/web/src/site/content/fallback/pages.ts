@@ -69,111 +69,16 @@ const features: Section = {
 };
 
 export const pages: Record<PageSlug, PageContent> = {
+  /** SEO of the homepage; its sections are fixed in code (home.ts, components/home). */
   home: {
     slug: 'home',
     seo: {
-      title: 'applyspace - Your job search, finally in one space',
-      description: 'Find the right job offers, track every application and prepare your interviews, all in one calm space. Free to start.',
+      title: 'applyspace - When finding a job is not a job itself',
+      description: 'Find offers, apply, and prepare your interviews in one space. Track every application on a board, table, timeline or map. Free to start.',
     },
-    eyebrow: 'For job seekers',
-    heading: 'Every offer, application and interview. One calm space.',
-    intro: 'Find the right offers, track every application and prepare your interviews, all in one space.',
-    ctas: [
-      { label: 'Get started free', href: '/login', kind: 'app' },
-      { label: 'Download for macOS', href: '/download', kind: 'download' },
-    ],
-    note: 'Free to start. No card needed.',
-    heroDemo: {
-      key: 'board',
-      label: 'Live demo of the Applications board: drag a card to another column, or use its menu to change its status.',
-      caption: 'Applications, Board view. Try moving a card.',
-    },
-    sections: [
-      {
-        type: 'scatter',
-        title: 'One application, five tools.',
-        body: "The offer lives in a browser tab, the status in a spreadsheet, the recruiter's name in your email, the interview in your calendar and your notes somewhere else. applyspace keeps all of it together, for every application.",
-        fragments: [
-          { kind: 'tab', label: 'Browser tab', text: 'Product Designer - 34 tabs' },
-          { kind: 'sheet', label: 'Spreadsheet', text: 'applications_v7_final.xlsx' },
-          { kind: 'note', label: 'Notes', text: 'Interview Tues? ask about remote' },
-          { kind: 'email', label: 'Email', text: 'Re: your application' },
-          { kind: 'calendar', label: 'Calendar', text: 'Call with recruiter' },
-        ],
-      },
-      searchSpotlight,
-      applicationsViews,
-      interviewsSpotlight,
-      profileFlow,
-      { ...features, link: { label: 'Take the product tour', href: '/product' } },
-      {
-        type: 'steps',
-        title: 'From first search to signed offer.',
-        items: [
-          { title: 'Import your resume', text: 'Your profile is ready in a minute.' },
-          { title: 'Search for offers', text: 'Run your search profiles from the desktop app.' },
-          { title: 'Track your applications', text: 'Every status, document and contact together.' },
-          { title: 'Prepare your interviews', text: 'Notes, questions and next steps per round.' },
-        ],
-      },
-      {
-        type: 'download',
-        eyebrow: 'Desktop app',
-        title: 'Searches run from the desktop app.',
-        body: 'The macOS app runs your search profiles with your own sessions on the job sites you use. New offers are saved to your account, so you find them on the web too.',
-        bullets: ['Same account on the web and on your Mac', 'Your sessions stay on your Mac', 'Offers saved to your account, without duplicates'],
-      },
-      {
-        type: 'trust',
-        title: 'Your job search stays yours.',
-        intro: "Your current employer doesn't need to know. Neither does anyone else.",
-        items: [
-          { icon: 'lock', title: 'Private to your account', text: 'Your offers, applications and notes are scoped to your account. Nobody else can read them.' },
-          { icon: 'analytics', title: 'Analytics only if you agree', text: 'Usage analytics are off until you opt in, and you can turn them off any time.' },
-          { icon: 'ai', title: 'Your AI, your account', text: "AI features run on your own AI accounts. We don't resell your data or train AI on it." },
-          { icon: 'leave', title: 'Leave whenever you want', text: 'Data export and account deletion are coming to Settings.' },
-        ],
-      },
-      {
-        type: 'plans',
-        title: 'Free to start. More room when you need it.',
-        intro: 'Start on Free. Move to Plus or Max when your search picks up, and come back whenever you want.',
-        variant: 'compact',
-        footnote: 'Every plan includes search, all application views, interviews and resume import.',
-      },
-      {
-        type: 'facts',
-        eyebrow: 'Product facts',
-        title: 'What you get, in plain words.',
-        items: [
-          { value: 'Web and Mac', label: 'One account everywhere', text: 'The same applications in the browser and in the macOS app.' },
-          { value: 'In sync', label: 'Every view, same data', text: 'Board, table, timeline and map show the same applications.' },
-          { value: 'Resume in', label: 'Profile filled for you', text: 'A PDF, a DOCX or your LinkedIn export fills your profile for review.' },
-          { value: 'Opt-in', label: 'Analytics if you agree', text: 'Nothing is measured until you say yes.' },
-        ],
-      },
-      {
-        type: 'faq',
-        title: 'Questions, answered.',
-        link: { label: 'Pricing questions', href: '/pricing' },
-        items: [
-          { question: 'Is applyspace free?', answer: 'Yes, you can start for free, with no card. Plus and Max give you more room when your search picks up; the Pricing page has the details.' },
-          { question: 'Why do I need the desktop app?', answer: 'Searches run from the desktop app, using your own sessions on the job sites you use. Results are saved to your account and visible on the web too.' },
-          { question: 'Who can see my data?', answer: 'Only you. Your data is scoped to your account.' },
-          { question: 'How does the AI work?', answer: 'AI features use your own AI account, so you stay in control of what is sent and to whom.' },
-          { question: 'Can I import my resume?', answer: 'Yes: PDF, DOCX or your LinkedIn export.' },
-          { question: 'Can I leave with my data?', answer: 'Yes. Data export and account deletion are coming to Settings, so you can leave whenever you want.' },
-        ],
-      },
-      {
-        type: 'cta',
-        title: 'Give your job search one space.',
-        text: 'Free to start. No card needed.',
-        cta: { label: 'Get started free', href: '/login', kind: 'app' },
-        secondary: { label: 'Download for macOS', href: '/download', kind: 'download' },
-        preview: 'board',
-      },
-    ],
+    heading: 'When finding a job is not a job itself',
+    intro: 'Find offers, apply, and prepare your interviews in one space.',
+    sections: [],
   },
   product: {
     slug: 'product',

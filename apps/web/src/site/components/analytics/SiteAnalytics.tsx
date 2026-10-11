@@ -5,11 +5,11 @@ import { buttonStyles } from '@/site/components/ui/buttonStyles';
 
 /**
  * Website cookie consent and analytics, out of the first load (SiteAnalyticsLoader fetches this island when the
- * browser is idle, or when "Cookie settings" is pressed). It opens a centered modal dialog while no choice is
- * stored. posthog-js is fetched only after the visitor accepts (or already accepted analytics in the app), and
+ * browser is idle, or when "Cookie settings" is pressed). It shows a non-modal banner at the bottom centre while no
+ * choice is stored. posthog-js is fetched only after the visitor accepts (or already accepted analytics in the app), and
  * only page views and CTA clicks are sent (no autocapture, no session replay, no surveys). The website's choice is
  * stored apart from the app's, because the app consent also covers identification by email: accepting here does
- * not opt in the app. A "no" given in the app is respected here. Closing the dialog (Esc) is not a choice: it
+ * not opt in the app. A "no" given in the app is respected here. Dismissing the banner (Esc) is not a choice: it
  * opens again on the next page load.
  */
 
@@ -81,13 +81,11 @@ function ctaOf(target: EventTarget | null): { placement: string; href: string } 
   return { placement, href: url.origin === window.location.origin ? url.pathname + url.hash : url.origin };
 }
 
-const FOCUSABLE = 'a[href], button:not([disabled])';
-
 /** `reopen` grows each time "Cookie settings" is pressed. */
 export function SiteAnalytics({ labels, reopen }: { labels: ConsentLabels; reopen: number }) {
   const [status, setStatus] = useState<Status>('off');
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDialogElement>(null);
+  const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const s = storedStatus();
@@ -117,14 +115,7 @@ export function SiteAnalytics({ labels, reopen }: { labels: ConsentLabels; reope
   }, [status]);
 
   useEffect(() => {
-    const d = ref.current;
-    if (!d) return;
-    if (open && !d.open) {
-      d.showModal();
-      d.focus();
-    } else if (!open && d.open) {
-      d.close();
-    }
+    if (open) ref.current?.focus();
   }, [open]);
 
   const choose = (accepted: boolean) => {
@@ -140,50 +131,37 @@ export function SiteAnalytics({ labels, reopen }: { labels: ConsentLabels; reope
     setOpen(false);
   };
 
-  /** Keeps Tab inside the dialog (the page behind is inert, but Tab could still reach the browser UI). */
-  const onKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
-    if (e.key !== 'Tab' || !ref.current) return;
-    const items = Array.from(ref.current.querySelectorAll<HTMLElement>(FOCUSABLE));
-    if (!items.length) return;
-    const first = items[0];
-    const last = items[items.length - 1];
-    const active = document.activeElement;
-    if (e.shiftKey && (active === first || active === ref.current)) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && active === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  };
+  if (!open) return null;
 
   return (
-    <dialog
+    <section
       ref={ref}
       tabIndex={-1}
+      role="region"
       aria-labelledby="cookie-title"
       aria-describedby="cookie-body"
-      onClose={() => setOpen(false)}
-      onKeyDown={onKeyDown}
-      className="site-dialog m-auto w-[calc(100%-32px)] max-w-[440px] rounded-2xl border border-stone-200 bg-white p-6 text-stone-950 shadow-[0_24px_48px_-12px_rgb(28_25_23/0.18)] outline-none backdrop:bg-stone-950/20 sm:p-7"
+      onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
+      className="site-banner fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-[760px] flex-col gap-4 rounded-2xl border border-stone-200 bg-white p-5 text-stone-950 shadow-[0_12px_32px_-12px_rgb(60_30_90/0.22)] outline-none sm:flex-row sm:items-center sm:gap-6 sm:p-5 sm:pl-6"
     >
-      <h2 id="cookie-title" className="text-pretty text-base font-semibold leading-[1.4] tracking-tight">
-        {labels.title}
-      </h2>
-      <p id="cookie-body" className="mt-2 text-pretty text-sm leading-[1.6] text-stone-600">
-        {labels.body}
-      </p>
-      <a href={labels.policyHref} className="mt-3 inline-flex min-h-8 items-center text-sm font-medium text-stone-950 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-950">
-        {labels.policy}
-      </a>
-      <div className="mt-5 grid grid-cols-2 gap-2">
-        <button type="button" onClick={() => choose(false)} className={buttonStyles('secondary', 'md', 'w-full')}>
+      <div className="min-w-0 flex-1 text-sm leading-[1.55]">
+        <p id="cookie-title" className="text-stone-950">
+          {labels.title}
+        </p>
+        <p id="cookie-body" className="mt-1 text-stone-600">
+          {labels.body}{' '}
+          <a href={labels.policyHref} className="text-stone-950 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-950">
+            {labels.policy}
+          </a>
+        </p>
+      </div>
+      <div className="grid shrink-0 grid-cols-2 gap-2">
+        <button type="button" onClick={() => choose(false)} className={buttonStyles('secondary', 'md')}>
           {labels.decline}
         </button>
-        <button type="button" onClick={() => choose(true)} className={buttonStyles('secondary', 'md', 'w-full')}>
+        <button type="button" onClick={() => choose(true)} className={buttonStyles('secondary', 'md')}>
           {labels.accept}
         </button>
       </div>
-    </dialog>
+    </section>
   );
 }

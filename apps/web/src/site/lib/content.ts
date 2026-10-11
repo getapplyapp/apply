@@ -1,7 +1,7 @@
 import type { Locale } from './i18n';
 import { sanityFetch, sanityImageUrl } from './sanity';
 import * as fallback from '@/site/content/fallback';
-import { DEMO_KEYS, VIEW_KEYS, type Cta, type Demo, type DemoKey, type Feature, type ImageRef, type PageContent, type PageSlug, type PricingPlan, type Resource, type Section, type SiteSettings, type TextLink, type ThemeKey, type ViewKey } from '@/site/content/types';
+import { DEMO_KEYS, VIEW_KEYS, type Cta, type Demo, type DemoKey, type Feature, type HomeContent, type ImageRef, type PageContent, type PageSlug, type PricingPlan, type Resource, type Section, type SiteSettings, type TextLink, type ThemeKey, type ViewKey } from '@/site/content/types';
 import type { PortableTextBlock } from '@portabletext/react';
 
 /**
@@ -248,4 +248,13 @@ export async function getResource(slug: string, locale: Locale): Promise<Resourc
   );
   if (doc) return mapResource(doc);
   return fallback.resources.find((r) => r.slug === slug) ?? null;
+}
+
+/**
+ * Homepage content (art direction v3). Not modelled in Sanity yet: the structure and copy live in
+ * content/fallback/home.ts; `locale` is kept for the day a translation or a CMS document exists.
+ */
+export async function getHome(locale: Locale): Promise<HomeContent> {
+  void locale;
+  return fallback.home;
 }

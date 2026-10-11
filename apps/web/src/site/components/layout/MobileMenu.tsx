@@ -31,14 +31,14 @@ export function MobileMenu({
   }, [open]);
 
   return (
-    <div className="md:hidden">
+    <div className="justify-self-end md:hidden">
       <button
         type="button"
         aria-expanded={open}
         aria-controls="mobile-menu"
         aria-label={open ? labels.close : labels.menu}
         onClick={() => setOpenOn(open ? null : pathname)}
-        className="flex size-10 items-center justify-center rounded-full hover:bg-stone-100"
+        className="flex size-11 items-center justify-center rounded-full border-[1px] border-stone-950/[0.16] bg-white/70 text-stone-950 hover:bg-white"
       >
         {/* Hugeicons Menu01 and Cancel01, inlined to keep the icon library out of the first-load JavaScript. */}
         <svg aria-hidden width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -46,10 +46,10 @@ export function MobileMenu({
         </svg>
       </button>
       {open && (
-        <div id="mobile-menu" className="absolute inset-x-0 top-full border-t border-stone-200 bg-white px-4 pb-6 pt-2">
+        <div id="mobile-menu" className="absolute inset-x-4 top-full rounded-[20px] border-[1px] border-stone-950/[0.08] bg-white px-5 pb-5 pt-2 shadow-[0_12px_40px_-12px_rgba(31,13,44,0.25)]">
           <nav aria-label={labels.nav} className="flex flex-col">
             {nav.map((item) => (
-              <Link key={item.href} href={item.href} className="border-b border-stone-100 py-3 text-base font-medium">
+              <Link key={item.href} href={item.href} className="border-b border-stone-100 py-3 text-base">
                 {item.label}
               </Link>
             ))}

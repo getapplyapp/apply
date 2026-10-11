@@ -120,6 +120,27 @@ export type Section =
 
 export type PageSlug = 'home' | 'product' | 'pricing' | 'resources';
 
+/** Product visuals of the homepage (inline SVG components in components/visuals). */
+export const HOME_VISUAL_KEYS = ['board', 'resume', 'search', 'alerts', 'apply', 'track', 'prepare'] as const;
+export type HomeVisualKey = (typeof HOME_VISUAL_KEYS)[number];
+
+/** A card or panel with a visual; `soon`: planned, not in the product yet (shows a "Soon" pill). */
+export type HomeCard = { title: string; text: string; visual: HomeVisualKey; soon?: boolean };
+
+/**
+ * Homepage, art direction v3 (11 Oct 2026). Fixed structure, content from code (content/fallback/home.ts);
+ * SEO still comes from the `home` page document.
+ */
+export type HomeContent = {
+  hero: { heading: string; intro: string; ctas: Cta[] };
+  boards: { title: string; items: { name: string; domain: string }[] };
+  features: { title: string; cards: HomeCard[] };
+  journey: { label: string; steps: (HomeCard & { key: 'find' | 'apply' | 'track' | 'prepare'; link: TextLink })[] };
+  views: { title: string; label: string; items: { key: ViewKey; label: string }[] };
+  apps: { title: string; items: { key: 'desktop' | 'mobile' | 'extension'; title: string; text: string; soon?: boolean; cta: Cta }[] };
+  closing: { title: string; ctas: Cta[] };
+};
+
 export type PageContent = {
   slug: PageSlug;
   seo: Seo;
